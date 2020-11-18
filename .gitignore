@@ -4,11 +4,12 @@
 /dist
 /tmp
 /out-tsc
+/server/server
 # Only exists if Bazel was run
 /bazel-out
 
 # dependencies
-/node_modules
+/frontend/node_modules
 
 # profiling files
 chrome-profiler-events*.json
@@ -30,6 +31,7 @@ speed-measure-plugin*.json
 !.vscode/launch.json
 !.vscode/extensions.json
 .history/*
+*.code-workspace
 
 # misc
 /.sass-cache

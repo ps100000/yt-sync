@@ -1,0 +1,36 @@
+
+        <div fxLayout="column" fxLayoutAlign="start stretch" class="max"> 
+            <mat-toolbar fxFlex="none" fxLayoutGap="16px" class="topmenu">
+                Room:
+                <mat-form-field appearance="standard">
+                    <input matInput type="text" placeholder="Room name" [value]="clientState.roomName" (change)="roomNameChange($event)">
+                  </mat-form-field>
+                Video:
+                <mat-form-field appearance="standard">
+                    <input matInput type="text" placeholder="Video-ID" [value]="syncedVideoState.videoId" (change)="videoIdChange($event)">
+                </mat-form-field>
+            </mat-toolbar>
+            <div fxFlex fxLayout="column" fxLayoutAlign="start stretch" class="content">
+                <div class="overlay-container">
+                    <app-player
+                        fxFlex
+                        [allReady]="allReady"
+                        [videoState]="syncedVideoState"
+                        [volume]="volume.value"
+                        (duration)="duration = $event"
+                        (videoProgress)="onVideoProgressChange($event)"
+                        (synced)="onPlayerSyncedChange($event)" 
+                        #playerA>
+                    </app-player>
+                    <div class="overlay-mouseblock" (click)="onPlayBtnClicked()"></div>
+                </div>
+                <div fxLayout="row" fxLayoutAlign="start stretch">
+                    <button fxFlex="none" mat-flat-button (click)="onPlayBtnClicked()"><mat-icon>pause</mat-icon></button>
+                    <mat-slider fxFlex color="primary" [value]="clientState.videoState.currentTime" [max]="duration" (change)="onTimelineChange($event)"></mat-slider>
+                    <mat-slider #volume fxFlex="none" value="50" color="primary"></mat-slider>
+                </div>
+            </div>
+        </div>
+synced {{playerA.synced | async}}<br>
+videoProgress {{playerA.videoProgress | async}}<br>
+duration {{playerA.duration | async}}|{{duration}}

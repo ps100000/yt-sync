@@ -1,27 +1,52 @@
-# YtSync
+# YT-Sync - A video synchronization webapp with minimal external JS 
+![Overview of main page](readme-resources/main.png?raw=true "The application main page")
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 10.0.7.
+YT-Sync is a webapp allowing you to watch YouTube videos together in sync.\
+It's build to use as few external JS resources and APIs as possible - only loading the needed API to embed, load and play videos.
 
-## Development server
+It consists of a very simple Angular application, which can be easily extended with additional features and a websocket server written in C++.
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+The hole application can be quickly deployed using 2 Docker containers.\
+One for the Angular app and one for the server.
 
-## Code scaffolding
+| Similar commercial page | YT-Sync |
+| - | - |
+| ![Screenshot of UMatrix on a similar page. Showing the usage of multiple additional CDNs, trackers, advertisements, ...](readme-resources/commercial.png?raw=true "Resources loaded by similar applications for comparison") | ![Screenshot of UMatrix showing that only the resources used by the YT API are loaded by YT-Sync](readme-resources/minimal.png?raw=true "Resources loaded by YT-Sync") |
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+## Build & deploy Docker-container 
+You can build the containers yourself by running
 
-## Build
+    docker build -t yt-sync-server:latest -f ./docker/server/Dockerfile .
+    docker build -t yt-sync-frontend:latest -f ./docker/frontend/Dockerfile .
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+After that you can deploy the application using the following docker compose:
 
-## Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+``` yaml
+version: "2"
+services:
+  server:
+    image: yt-sync-server:latest
+    networks:
+      backend:
+        ipv4_address: 10.10.10.2
+    restart: unless-stopped
+  frontend:
+    image: yt-sync-frontend:latest
+    environment:
+      - BACKEND_SERVER_URL=10.10.10.2:9002
+    networks:
+      backend:
+    restart: unless-stopped
+    depends_on:
+      - server
+networks:
+  backend:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.10.10.0/24
+          ip_range: 10.10.10.0/24
+          gateway: 10.10.10.1
+    internal: true
+```
+If you use a different network/IPs for your containers make sure to adapt  `BACKEND_SERVER_URL` accordingly.
